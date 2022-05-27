@@ -4,9 +4,10 @@ import useFirebaseAuth from '../lib/useFirebaseAuth';
 const authUserContext = createContext({
   authUser: null,
   loading: true,
-  signInWithEmailAndPassword: async () => {},
-  createUserWithEmailAndPassword: async () => {},
-  signOut: async () => {}
+  signIn: async () => {},
+  signUp: async () => {},
+  logOut: async () => {},
+  signInWithGoogle: async () => {}
 });
 
 export function AuthUserProvider({ children }) {
@@ -14,4 +15,4 @@ export function AuthUserProvider({ children }) {
   return <authUserContext.Provider value={auth}>{children}</authUserContext.Provider>;
 }
 
-export const useAuth = () => useContext(authUserContext);
+export const useAuthUserContext = () => useContext(authUserContext);

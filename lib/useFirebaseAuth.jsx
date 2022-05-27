@@ -1,5 +1,15 @@
 import { useState, useEffect } from 'react'
-import firebase from './firebase';
+import { app } from "./firebase";
+import {
+  getAuth,
+  signOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup
+} from 'firebase/auth';
+import { useRouter } from 'next/router';
 
 const formatAuthUser = (user) => ({
   uid: user.uid,
@@ -9,6 +19,11 @@ const formatAuthUser = (user) => ({
 export default function useFirebaseAuth() {
   const [authUser, setAuthUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  const auth = getAuth(app)
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
 
   const authStateChanged = async (authState) => {
     if (!authState) {
@@ -28,28 +43,58 @@ export default function useFirebaseAuth() {
 
   const clear = () => {
     setAuthUser(null);
-    setLoading(true);
+    setLoading(false);
   };
 
-  const signInWithEmailAndPassword = (email, password) =>
-    firebase.auth().signInWithEmailAndPassword(email, password);
+  const signIn = (email, password) =>
+    signInWithEmailAndPassword(auth, email, password)
+      .then(authUser => {
+        console.log("Success. The user is created in firebase")
+        router.push('/logged_in');
+      })
+      .catch(error => {
+        setError(error.message)
+      });
 
-  const createUserWithEmailAndPassword = (email, password) =>
-    firebase.auth().createUserWithEmailAndPassword(email, password);
+  const signUp = (email, password) =>
+    createUserWithEmailAndPassword(auth, email, password);
 
-  const signOut = () =>
-    firebase.auth().signOut().then(clear);
+  const logOut = () =>
+    signOut(auth).then(clear)
 
   useEffect(() => {
-    const unsubscribe = firebase.auth().onAuthStateChanged(authStateChanged);
-    return () => unsubscribe();
+    const unsubscribe = onAuthStateChanged(auth, authStateChanged);
+    return unsubscribe
   }, []);
+
+  const signInWithGoogle = () =>
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        // redux action? --> dispatch({ type: SET_USER, user });
+        router.push('/logged_in');
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+      });
 
   return {
     authUser,
     loading,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    signOut
+    signIn,
+    signUp,
+    logOut,
+    signInWithGoogle
   };
 }
