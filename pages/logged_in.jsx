@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useAuth } from '../context/AuthUserContext';
+import { useAuthUserContext } from '../context/AuthUserContext';
 
 import {Container, Row, Col, Button} from 'reactstrap';
 
 const LoggedIn = () => {
-  const { authUser, loading, signOut } = useAuth();
+  const { authUser, loading, logOut } = useAuthUserContext();
   const router = useRouter();
 
   // Listen for changes on loading and authUser, redirect if needed
@@ -30,7 +30,7 @@ const LoggedIn = () => {
               </Row>
               <Row>
                 <Col>
-                  <Button onClick={signOut}>Sign out</Button>
+                  <Button onClick={logOut}>Sign out</Button>
                 </Col>
               </Row>
             </>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 
-import { useAuth } from '../context/AuthUserContext';
+import { useAuthUserContext } from '../context/AuthUserContext';
 
 import {Container, Row, Col, Button, Form, FormGroup, Label, Input, Alert} from 'reactstrap';
 
@@ -13,14 +13,14 @@ const SignUp = () => {
   //Optional error handling
   const [error, setError] = useState(null);
 
-  const { createUserWithEmailAndPassword } = useAuth();
+  const { signUp } = useAuthUserContext();
 
   const onSubmit = event => {
     setError(null)
     if(passwordOne === passwordTwo)
-      createUserWithEmailAndPassword(email, passwordOne)
+      signUp(email, passwordOne)
       .then(authUser => {
-        console.log("Success. The user is created in firebase")
+        console.log(`Success. The user is created in firebase: ${JSON.stringify(authUser)}`)
         router.push("/logged_in");
       })
       .catch(error => {

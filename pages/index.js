@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 
-import { useAuth } from '../context/AuthUserContext';
+import { useAuthUserContext } from '../context/AuthUserContext';
 
 import {Container, Row, Col, Button, Form, FormGroup, Label, Input, Alert} from 'reactstrap';
 
@@ -10,20 +9,12 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const router = useRouter();
-  const { signInWithEmailAndPassword } = useAuth();
+  const { signIn, signInWithGoogle } = useAuthUserContext();
 
   const onSubmit = event => {
     setError(null)
-    signInWithEmailAndPassword(email, password)
-    .then(authUser => {
-      console.log("Success. The user is created in firebase")
-      router.push('/logged_in');
-    })
-    .catch(error => {
-      setError(error.message)
-    });
-    event.preventDefault();
+    signIn(email, password)
+    event.preventDefault()
   };
 
   return (
@@ -69,6 +60,16 @@ export default function Home() {
            <FormGroup row>
             <Col>
               No account? <Link href="/sign_up">Create one</Link>
+            </Col>
+          </FormGroup>
+          <FormGroup row>
+            <Col>
+            <Button
+              variant="outline-primary"
+              onClick={signInWithGoogle}
+            >
+              <i className="fab fa-google"></i>Sign-in with Goolge
+            </Button>
             </Col>
           </FormGroup>
           </Form>
